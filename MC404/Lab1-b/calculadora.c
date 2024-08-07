@@ -59,7 +59,32 @@ int multiplicacao(int a, int b){
     return a * b;
 }
 
+char input_buffer[10];
+
 int main()
 {
+    int result = 0;
+    int n = read(0, (void*) input_buffer, 10);
+    char chara = input_buffer[0];
+    char charb = input_buffer[4];
+    char oprt = input_buffer[2];
 
+    int inta = chara - 0;
+    int intb = charb - 0;
+
+    if(oprt == '+'){
+        result = adicao(inta, intb);
+
+    }else if(oprt == '-'){
+        result = subtracao(inta, intb);
+
+    }else if(oprt == '*'){
+        result = multiplicacao(inta, intb);
+    }
+
+    result = result + 0;
+
+    write(1, result, 2);
+
+    return 0;
 }
