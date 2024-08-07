@@ -69,8 +69,8 @@ int main()
     char charb = input_buffer[4];
     char oprt = input_buffer[2];
 
-    int inta = chara - 0;
-    int intb = charb - 0;
+    int inta = chara - '0';
+    int intb = charb - '0';
 
     if(oprt == '+'){
         result = adicao(inta, intb);
@@ -82,9 +82,11 @@ int main()
         result = multiplicacao(inta, intb);
     }
 
-    result = result + 0;
-
-    write(1, result, 2);
+    result = result + '0';
+    char buffer_result[2];
+    buffer_result[0] = result;
+    buffer_result[1] = '\n';
+    write(1, buffer_result, 2);
 
     return 0;
 }
