@@ -138,10 +138,25 @@ void print_dec(int num){
     str[0] = '-';
     negativo = 1;
     num * -1;
+    aux = 0;
   }
   for(int i = 0; i < 10; i++){
-    str[i + negativo] = intchar(num / potencia(10, 9 - i));
+    aux = num / potencia(10, 9 - i);
+    if(aux = 0){
+      if(start){
+        str[i + negativo - zeros] = '0';
+      }else {
+        zeros += 1;
+      }
+    }else{
+      start = 1;
+      str[i + negativo - zeros] = intchar(num / potencia(10, 9 - i));
+      num -= aux * potencia(10, 9 - i);
+    }
+    
   }
+
+  //ainda tem coisa p fazer aqui!!!
 }
 
 
