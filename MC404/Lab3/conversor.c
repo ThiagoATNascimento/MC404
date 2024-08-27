@@ -40,6 +40,8 @@ void exit(int code)
   );
 }
 
+int main();
+
 void _start()
 {
   int ret_code = main();
@@ -64,17 +66,18 @@ char intchar(int digito){
   if(digito <=9){
     crct = digito + '0';
   }else {
-    crct = digito + 'a';
+    crct = digito + 'a' - 10;
   }
   return crct;
 }
 
 
-void print_binary(int num){
-  int binary_mask = 0x80000000;
+void print_binary(int num_int){
+  unsigned int binary_mask = 0x80000000;
+  unsigned num = num_int;
   int start = 0;
   int zeros = 0;
-  char str[35];
+  char str[50];
   str[0] = '0';
   str[1] = 'b';
   for(int i = 0; i < 32; i++){
@@ -94,15 +97,18 @@ void print_binary(int num){
     binary_mask >>= 1;
   }
   str[34 - zeros] = '\n';
+
+  write(STDOUT_FD, str, 35 - zeros);
 }
 
 
-void print_hex(int num){
-  int hex_mask = 0xf0000000;
+void print_hex(int num_int){
+  unsigned int hex_mask = 0xf0000000;
+  unsigned int num = num_int;
+  unsigned int aux = 0;
   int start = 0;
-  int aux = 0;
   int zeros = 0;
-  char str[11];
+  char str[50];
   str[0] = '0';
   str[1] = 'x';
 
@@ -110,7 +116,6 @@ void print_hex(int num){
     aux = num & hex_mask;
     aux >>= (28 - (4 * i));
     hex_mask >>= 4;
-
     if(aux == 0){
       if(start){
         str[i + 2 - zeros] = '0';
@@ -128,21 +133,21 @@ void print_hex(int num){
 }
 
 
-void print_dec(int num){
+void print_dec(int num_int, int signal){
   int start = 0;
   int aux = 0;
   int zeros = 0;
   int negativo = 0;
-  char str[12];
-  if(num < 0){
+  char str[50];
+  if(num_int < 0 && signal){
     str[0] = '-';
     negativo = 1;
-    num * -1;
-    aux = 0;
+    num_int *= -1;
   }
+  unsigned int num = num_int;
   for(int i = 0; i < 10; i++){
     aux = num / potencia(10, 9 - i);
-    if(aux = 0){
+    if(aux == 0){
       if(start){
         str[i + negativo - zeros] = '0';
       }else {
@@ -153,45 +158,56 @@ void print_dec(int num){
       str[i + negativo - zeros] = intchar(num / potencia(10, 9 - i));
       num -= aux * potencia(10, 9 - i);
     }
-    
   }
+  str[10 - zeros + negativo] = '\n';
 
-  //ainda tem coisa p fazer aqui!!!
+  write(STDOUT_FD, str, 11 - zeros + negativo);
+}
+
+
+void print_swapped(int num_int){
+  unsigned int mask = 0xff000000;
+  unsigned int num = num_int;
+  unsigned int aux = 0;
+  char str[50];
+
+  aux = ((num & 0xff000000) >> 24) + ((num & 0x00ff0000) >> 8) + ((num & 0x0000ff00) << 8) + ((num & 0x000000ff) << 24);
+  print_dec(aux, 0);
 }
 
 
 int main()
 {
-  char buffer[20];
-  /* Read up to 20 bytes from the standard input into the str buffer */
+  char buffer[50];
   int n = read(STDIN_FD, buffer, 20);
+  // int n = 7;
   int num = 0;
 
   //se a entrada for hexadecimal
   if(buffer[1] == 'x'){
-    for (int i = 0; i < n - 2; i++){
+    for (int i = 0; i < n - 3; i++){
 
       if((buffer[i + 2]) <= '9'){
-        num += (buffer[i + 2] - '0') * potencia(16, n - 3 - i);
+        num += (buffer[i + 2] - '0') * potencia(16, n - 4 - i);
 
       }else {
         if(buffer[i + 2] == 'a'){
-          num += 10 * potencia(16, n - 3 - i);
+          num += 10 * potencia(16, n - 4 - i);
 
         }else if(buffer[i + 2] == 'b'){
-          num += 11 * potencia(16, n - 3 - i);
+          num += 11 * potencia(16, n - 4 - i);
 
         }else if(buffer[i + 2] == 'c'){
-          num += 12 * potencia(16, n - 3 - i);
+          num += 12 * potencia(16, n - 4 - i);
 
         }else if(buffer[i + 2] == 'd'){
-          num += 13 * potencia(16, n - 3 - i);
+          num += 13 * potencia(16, n - 4 - i);
           
         }else if(buffer[i + 2] == 'e'){
-          num += 14 * potencia(16, n - 3 - i);
+          num += 14 * potencia(16, n - 4 - i);
           
         }else if(buffer[i + 2] == 'f'){
-          num += 11 * potencia(16, n - 3 - i);         
+          num += 15  * potencia(16, n - 4 - i);         
         }
       }
     }
@@ -199,20 +215,21 @@ int main()
 
   }else { //se a entrada for decimal
     if(buffer[0] == '-'){
-      for (int i = 1; i < n; i++){
-        num += (buffer[i] - '0') * potencia(10, n - 1 - i);
+      for (int i = 1; i < n - 1; i++){
+        num += (buffer[i] - '0') * potencia(10, n - 2 - i);
       }
+      num = num * -1;
     }else {
-      for(int i = 0; 1 < n; i++){
-        num += (buffer[i] - '0') * potencia(10, n - 1 - i);
+      for(int i = 0; i < n - 1; i++){
+        num += (buffer[i] - '0') * potencia(10, n - 2 - i);
       }
     }
   }
   
+  print_binary(num);
+  print_dec(num, 1);
+  print_hex(num);
+  print_swapped(num);
 
-
-
-  /* Write n bytes from the str buffer to the standard output */
-  write(STDOUT_FD, buffer, n);
   return 0;
 }
