@@ -46,7 +46,7 @@ _start:
     div t6, t4, t5
     add t1, t5, t6
     div t5, t1, t2
-
+    
     # 2°
     div t6, t4, t5
     add t1, t5, t6
